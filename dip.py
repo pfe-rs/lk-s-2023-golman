@@ -72,11 +72,13 @@ def doPerspectiveTransform(image, edgePoints: tuple):
     return dst
 
 
-def getFinalImage(cap: cv2.VideoCapture):
+def getFinalImage(vidcapId = 1):
+    vidcap = setupVidCap(vidcapId)
+    
     while True:
-        img = loadImage(cap)
+        img = loadImage(vidcap)
                     
-        contours = definitelyGetDialatedEdges(vidcap=cap, image=img, kernel_size=(31,31), anchor_size=(15,15), lower_bound=(52, 108, 75), upper_bound=(67, 130, 179))
+        contours = definitelyGetDialatedEdges(vidcap=vidcap, image=img, kernel_size=(31,31), anchor_size=(15,15), lower_bound=(52, 108, 75), upper_bound=(67, 130, 179))
         
         edges = findEdgePoints(contours=contours)
         
@@ -88,15 +90,15 @@ def getFinalImage(cap: cv2.VideoCapture):
 
 
 if __name__ == "__main__":
-    vidcap = setupVidCap(1)
-    
     # ask the user to confirm the suggested perspective transform is done well
-    edges_to_use = getFinalImage(cap=vidcap)
+    # edges_to_use = getFinalImage(cap=vidcap)
     
     while True:
         try:
             # detect ball and act accordingly
-            print(edges_to_use)
+            # print(edges_to_use)
+            pass
         except KeyboardInterrupt:
-            print("exiting...")
-            closeVidCap(vidcap)
+            # print("exiting...")
+            # closeVidCap(vidcap)
+            pass
