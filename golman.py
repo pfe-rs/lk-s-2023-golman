@@ -124,7 +124,7 @@ if __name__ == "__main__":
                 point_3 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
 
         blank = np.zeros((600, 800), dtype=np.uint8)
-        cv2.line(blank, (799, 100), (799, 500), (255,255,255), 3)
+        cv2.line(blank, (0, 200), (0, 400), (255,255,255), 3)
 
         cv2.circle(blank, old_ball, 5, (255,255,255), 3)
         cv2.circle(blank, ballPos, 10, (255,255,255), 3)
@@ -133,7 +133,7 @@ if __name__ == "__main__":
         if point_3[0] != -1 and point_3[1] != -1:
             cv2.line(blank, point_2, point_3, (255, 255, 0), 2)
 
-        if point_2[0] == 799 and point_2[1] > 100 and point_2[1] < 500:
+        if point_2[0] == 0 and point_2[1] > 200 and point_2[1] < 400:
             print("goal is likely!")
 
         showImage(blank)
