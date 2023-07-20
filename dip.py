@@ -2,16 +2,16 @@
 import cv2
 import numpy as np
 
+
 def setupVidCap(vidCapId: int = 2):
     vidcap = cv2.VideoCapture(vidCapId)
-    vidcap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920.0)
-    vidcap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080.0)
+    vidcap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280.0)
+    vidcap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720.0)
     return vidcap
 
 
 def loadImage(vidcap: cv2.VideoCapture):
     _, image = vidcap.read()
-    showImage(image)
     return image
 
 
@@ -21,34 +21,31 @@ def closeVidCap(vidcap: cv2.VideoCapture):
 
 def showImage(image, title: str = "Image", waitKeyTimeout:int = 0):
     cv2.imshow(title,image)
-    cv2.waitKey(waitKeyTimeout)
+    return cv2.waitKey(waitKeyTimeout)
 
 
-def getDialatedEdges(vidcap: cv2.VideoCapture, image, kernel_size: tuple = (10,10), anchor_size: tuple = (4,4), lower_bound: tuple = (0,79,255), upper_bound: tuple = (9,90,255)):
+def getDialatedEdges(image, kernel_size: tuple, anchor_size: tuple, lower_bound: tuple, upper_bound: tuple):
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv_image, lowerb=lower_bound, upperb=upper_bound)
+    element = cv2.getStructuringElement(cv2.MORPH_RECT, ksize=kernel_size, anchor=anchor_size)
+    
+    dilatation_dst = cv2.dilate(mask, element)
+    contours, _ = cv2.findContours(dilatation_dst, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    
+    # showImage(dilatation_dst)
+    return contours
 
-    uglovi = 0
-    konture = None
 
-    while uglovi != 4:
-        try:
-            mask = cv2.inRange(hsv_image, lowerb=lower_bound, upperb=upper_bound)
-            element = cv2.getStructuringElement(cv2.MORPH_RECT, ksize=kernel_size, anchor=anchor_size)
-            
-            dilatation_dst = cv2.dilate(mask, element)
-            contours, _ = cv2.findContours(dilatation_dst, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-            
-            uglovi = len(contours)
-            
-            print(f"treuntno: {uglovi}")
-            showImage(dilatation_dst)
-            konture = contours
-            image = loadImage(vidcap=vidcap)
-            
-        except KeyboardInterrupt:
-            break
+def definitelyGetDialatedEdges(vidcap: cv2.VideoCapture, image, kernel_size: tuple = (21,21), anchor_size: tuple = (10,10), lower_bound: tuple = (58, 100, 75), upper_bound: tuple = (67, 115, 179)):
+    while True:
+        contours = getDialatedEdges(image, kernel_size, anchor_size, lower_bound, upper_bound)
+        
+        # print(f"treuntno: {len(contours)}")
+        
+        if len(contours) == 4:
+            return contours
 
-    return konture
+        image = loadImage(vidcap=vidcap)
 
 
 def findEdgePoints(contours):
@@ -65,12 +62,8 @@ def findEdgePoints(contours):
 
 
 def doPerspectiveTransform(image, edgePoints: tuple):
-    # coords = np.float32([[704,711],[821,63],[377,8],[111,548]])
     coords = np.float32(edgePoints)
-    
-    # TODO: check the oder in which coords are placed into
-    #       edgePoints and adjust outut accordingly
-    print(edgePoints)
+    # print(edgePoints)
     output = np.float32([[800,600],[800,0],[0,600],[0,0]])
     perspective_transform = cv2.getPerspectiveTransform(coords, output)
     
@@ -78,20 +71,32 @@ def doPerspectiveTransform(image, edgePoints: tuple):
     
     return dst
 
+
+def getFinalImage(cap: cv2.VideoCapture):
+    while True:
+        img = loadImage(cap)
+                    
+        contours = definitelyGetDialatedEdges(vidcap=cap, image=img, kernel_size=(31,31), anchor_size=(15,15), lower_bound=(52, 108, 75), upper_bound=(67, 130, 179))
+        
+        edges = findEdgePoints(contours=contours)
+        
+        shifted = doPerspectiveTransform(img, edgePoints=edges)
+        
+        if(showImage(shifted) == ord('y')):
+            cv2.destroyAllWindows()
+            return edges
+
+
 if __name__ == "__main__":
-    vidcap = setupVidCap()
+    vidcap = setupVidCap(1)
+    
+    # ask the user to confirm the suggested perspective transform is done well
+    edges_to_use = getFinalImage(cap=vidcap)
     
     while True:
         try:
-            img = loadImage(vidcap)
-            
-            contours = getDialatedEdges(vidcap, img, kernel_size=(21,21), anchor_size=(10,10))
-            
-            edges = findEdgePoints(contours=contours)
-
-            shifted = doPerspectiveTransform(img, edgePoints=edges)
-        
-            showImage(shifted)
+            # detect ball and act accordingly
+            print(edges_to_use)
         except KeyboardInterrupt:
             print("exiting...")
             closeVidCap(vidcap)
