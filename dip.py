@@ -19,12 +19,12 @@ def closeVidCap(vidcap: cv2.VideoCapture):
     vidcap.release()
 
 
-def showImage(image, title: str = "Image", waitKeyTimeout:int = 0):
+def showImage(image: cv2.Mat, title: str = "Image", waitKeyTimeout:int = 0):
     cv2.imshow(title,image)
     return cv2.waitKey(waitKeyTimeout)
 
 
-def getDialatedEdges(image, kernel_size: tuple, anchor_size: tuple, lower_bound: tuple, upper_bound: tuple):
+def getDialatedEdges(image: cv2.Mat, kernel_size: tuple, anchor_size: tuple, lower_bound: tuple, upper_bound: tuple):
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv_image, lowerb=lower_bound, upperb=upper_bound)
     element = cv2.getStructuringElement(cv2.MORPH_RECT, ksize=kernel_size, anchor=anchor_size)
@@ -36,7 +36,7 @@ def getDialatedEdges(image, kernel_size: tuple, anchor_size: tuple, lower_bound:
     return contours
 
 
-def definitelyGetDialatedEdges(vidcap: cv2.VideoCapture, image, kernel_size: tuple = (21,21), anchor_size: tuple = (10,10), lower_bound: tuple = (58, 100, 75), upper_bound: tuple = (67, 115, 179)):
+def definitelyGetDialatedEdges(vidcap: cv2.VideoCapture, image: cv2.Mat, kernel_size: tuple = (21,21), anchor_size: tuple = (10,10), lower_bound: tuple = (58, 100, 75), upper_bound: tuple = (67, 115, 179)):
     while True:
         contours = getDialatedEdges(image, kernel_size, anchor_size, lower_bound, upper_bound)
         
@@ -48,7 +48,7 @@ def definitelyGetDialatedEdges(vidcap: cv2.VideoCapture, image, kernel_size: tup
         image = loadImage(vidcap=vidcap)
 
 
-def findEdgePoints(contours):
+def findEdgePoints(contours: cv2.Mat):
     edgePoints = []
     
     for contour in contours:
@@ -61,7 +61,7 @@ def findEdgePoints(contours):
     return edgePoints
 
 
-def doPerspectiveTransform(image, edgePoints: tuple):
+def doPerspectiveTransform(image: cv2.Mat, edgePoints: tuple):
     coords = np.float32(edgePoints)
     # print(edgePoints)
     output = np.float32([[800,600],[800,0],[0,600],[0,0]])
@@ -72,7 +72,7 @@ def doPerspectiveTransform(image, edgePoints: tuple):
     return dst
 
 
-def getFinalImage(vidcapId = 1):
+def getFinalImage(vidcapId: int = 1):
     vidcap = setupVidCap(vidcapId)
     
     while True:
@@ -91,14 +91,14 @@ def getFinalImage(vidcapId = 1):
 
 if __name__ == "__main__":
     # ask the user to confirm the suggested perspective transform is done well
-    # edges_to_use = getFinalImage(cap=vidcap)
+    edges_to_use = getFinalImage()
     
     while True:
         try:
             # detect ball and act accordingly
-            # print(edges_to_use)
-            pass
+            print(edges_to_use)
+            # pass
         except KeyboardInterrupt:
-            # print("exiting...")
+            print("exiting...")
             # closeVidCap(vidcap)
-            pass
+            # pass
