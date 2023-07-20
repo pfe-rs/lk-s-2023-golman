@@ -72,9 +72,7 @@ def doPerspectiveTransform(image: cv2.Mat, edgePoints: tuple):
     return dst
 
 
-def getFinalImage(vidcapId: int = 1):
-    vidcap = setupVidCap(vidcapId)
-    
+def getFinalImage(vidcap: cv2.VideoCapture):
     while True:
         img = loadImage(vidcap)
                     
