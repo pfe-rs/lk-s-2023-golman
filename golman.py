@@ -5,7 +5,6 @@ from time import sleep
 
 old_ball = None
 
-
 def getBallPosition(image: cv2.Mat):
     contours, _ = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     c = max(contours, key=cv2.contourArea)
