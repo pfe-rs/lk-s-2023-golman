@@ -19,8 +19,8 @@ def setupSerial(baudRate, serialPortName):
 def recvLikeArduino(serialPort):
     global startMarker, endMarker, dataStarted, dataBuf, messageComplete
 
-    if serialPort.inWaiting() > 0 and messageComplete == False:
-        x = serialPort.read().decode("utf-8") # decode needed for Python3
+    while serialPort.inWaiting() > 0 and messageComplete == False:
+        x = serialPort.read().decode("utf-8")
         
         if dataStarted == True:
             if x != endMarker:
@@ -53,16 +53,17 @@ def sendToArduino(serialPort, stringToSend):
 
 
 if __name__ == "__main__":
-    s = setupSerial(115200, "COM6")
+    s = setupSerial(115200, "/dev/ttyACM0")
     print("arduino ready")
     while True:
         try:
-            sendToArduino(s, "test")
+            sendToArduino(s, "0")
             print("sent message to arduino")
             time.sleep(1)
-            reply = recvLikeArduino(s)
-            print(reply)
+            sendToArduino(s, "53")
+            print("sent message to arduino")
             time.sleep(1)
         except KeyboardInterrupt:
+            s.close()
             print("done...")
             break
