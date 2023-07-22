@@ -24,7 +24,7 @@ def binarization(image: cv2.Mat):
 
 
 if __name__ == "__main__":
-    vidcap = setupVidCap(1)
+    vidcap = setupVidCap(2)
     edges = getFinalImage(vidcap=vidcap)
     
     raw_img = loadImage(vidcap=vidcap)

@@ -10,13 +10,18 @@
 Servo s;
 
 int desPos = 0, cpos = 0, delta = 0;
+bool moveBall = false;
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(115200);
-  Serial.println("<READY>");
   pinMode(STEP, OUTPUT);
   pinMode(DIR, OUTPUT);
+
+  s.attach(9);
+  s.write(50);
+
+  Serial.begin(115200);
+  Serial.println("<READY>");
 }
 
 void loop() {
@@ -36,12 +41,16 @@ void loop() {
       desPosStr += str[i];
 
     desPos = map(desPosStr.toInt(), 200, 400, 2400, 6000);
+
+    if (str[str.length() - 1] == '1') {
+      moveBall = true;
+    }
   }
 
   delta = desPos - cpos;
 
   if (delta != 0) {
-    digitalWrite(DIR, delta > 0);
+    digitalWriteFast(DIR, delta > 0);
 
     digitalWriteFast(STEP, HIGH);
     delayMicroseconds(DELAY);
@@ -52,6 +61,14 @@ void loop() {
       cpos++;
     } else if (delta < 0) {
       cpos--;
+    }
+  }
+  else {
+    if (moveBall) {
+      s.write(5);
+      delay(125);
+      s.write(50);
+      moveBall = false;
     }
   }
 }
