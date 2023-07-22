@@ -89,7 +89,8 @@ def getFinalImage(vidcap: cv2.VideoCapture):
 
 if __name__ == "__main__":
     # ask the user to confirm the suggested perspective transform is done well
-    edges_to_use = getFinalImage()
+    vidcap = setupVidCap(2)
+    edges_to_use = getFinalImage(vidcap=vidcap)
     
     while True:
         try:
