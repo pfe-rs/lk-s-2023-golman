@@ -53,16 +53,16 @@ def sendToArduino(serialPort, stringToSend):
 
 
 if __name__ == "__main__":
-    s = setupSerial(115200, "/dev/ttyACM0")
+    s = setupSerial(115200, "COM4")
     print("arduino ready")
     while True:
         try:
-            sendToArduino(s, "0")
+            sendToArduino(s, "400 0")
             print("sent message to arduino")
-            time.sleep(1)
-            sendToArduino(s, "53")
+            time.sleep(1.6)
+            sendToArduino(s, "200 0")
             print("sent message to arduino")
-            time.sleep(1)
+            time.sleep(1.6)
         except KeyboardInterrupt:
             s.close()
             print("done...")
