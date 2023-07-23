@@ -19,7 +19,7 @@ def closeVidCap(vidcap: cv2.VideoCapture):
     vidcap.release()
 
 
-def showImage(image: cv2.Mat, title: str = "Image", waitKeyTimeout:int = 0):
+def showImage(image: cv2.Mat, title: str = "Image.png", waitKeyTimeout:int = 0):
     cv2.imshow(title,image)
     return cv2.waitKey(waitKeyTimeout)
 

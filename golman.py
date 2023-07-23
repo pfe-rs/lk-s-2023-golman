@@ -1,14 +1,16 @@
 import cv2
 import numpy as np
 from dip import getFinalImage, loadImage, setupVidCap, showImage, doPerspectiveTransform
+from arduino import setupSerial, sendToArduino, waitForArduino
 from time import sleep
+import os
 
 old_ball = None
+i = 0
 
 def getBallPosition(image: cv2.Mat):
     contours, _ = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    c = max(contours, key=cv2.contourArea)
-    
+    c = max(contours, key=cv2.contourArea)    
     x, y, w, h = cv2.boundingRect(c)
     
     return ((x+x+w)//2,(y+y+h)//2)
@@ -24,7 +26,16 @@ def binarization(image: cv2.Mat):
 
 
 if __name__ == "__main__":
+    serialPort = "/dev/ttyACM0"
+    print(f"Connecting to arduino on port {serialPort}")
+    sp = setupSerial(115200, serialPortName=serialPort)
+    print("Connected to arduino!")
+    sleep(3)
+    print("Continuing")
+    
+    print("Setting up video camera")
     vidcap = setupVidCap(2)
+    print("Camera successfully set up")
     edges = getFinalImage(vidcap=vidcap)
     
     raw_img = loadImage(vidcap=vidcap)
@@ -35,8 +46,9 @@ if __name__ == "__main__":
     
     old_ball = ballPos
     
+    br = 0
     while True:
-        sleep(0.1)
+        # sleep(0.1)
         
         raw_img = loadImage(vidcap=vidcap)
     
@@ -46,15 +58,15 @@ if __name__ == "__main__":
         
         # showImage(binarized)
         
-        print(old_ball, ballPos)
+        # print(old_ball, ballPos)
         
         # # print(f"ball number: {i}, old ball: {old_ball}, new ball: {ballPos}")
 
         # # check if the ball is moving to toward the goal
-        print(old_ball[0] - ballPos[0])
+        # print(old_ball[0] - ballPos[0])
         if old_ball[0] - ballPos[0] < 0:
             # print(old_ball, ballPos)
-            print("the ball is moving away from the goal!")
+            # print("the ball is moving away from the goal!")
             old_ball = ballPos
             continue
 
@@ -121,7 +133,7 @@ if __name__ == "__main__":
                     x = (n - y) / k
 
                 point_3 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
-
+        
         blank = np.zeros((600, 800), dtype=np.uint8)
         cv2.line(blank, (0, 200), (0, 400), (255,255,255), 3)
 
@@ -132,10 +144,19 @@ if __name__ == "__main__":
         if point_3[0] != -1 and point_3[1] != -1:
             cv2.line(blank, point_2, point_3, (255, 255, 0), 2)
 
-        if point_2[0] == 0 and point_2[1] > 200 and point_2[1] < 400:
-            print("goal is likely!")
+        if point_1[0] == 0 and point_1[1] > 200 and point_1[1] < 400:
+            if i == 5:
+            # os.system("play -nq -t alsa synth 0.3 sine 1000")
+            # print("goal is likely!")
+                # sendToArduino(serialPort=sp, stringToSend=f"{point_1[1]} 0")
+                print(f"sent to arduino: {point_1[1]} 0")
+                i = 0
+            else:
+                i += 1
+        # waitForArduino(serialPort=sp)
+        # print("continuing")
 
-        showImage(blank)
+        showImage(blank, f"slika{br}.png")
         
-        print(point_1, point_2, point_3)
+        print(f"p1:{point_1}, p2:{point_2}, p3:{point_3}, ballpos: {ballPos}")
         old_ball = ballPos

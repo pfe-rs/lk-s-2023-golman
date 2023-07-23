@@ -9,14 +9,14 @@ dataBuf = ""
 messageComplete = False
 
 
-def setupSerial(baudRate, serialPortName):
+def setupSerial(baudRate: int, serialPortName: str):
     serialPort = serial.Serial(port= serialPortName, baudrate = baudRate, timeout=0, rtscts=True)
     # print("Serial port " + serialPortName + " opened  Baudrate " + str(baudRate))
     waitForArduino(serialPort)
     return serialPort
 
 
-def recvLikeArduino(serialPort):
+def recvLikeArduino(serialPort: serial.Serial):
     global startMarker, endMarker, dataStarted, dataBuf, messageComplete
 
     while serialPort.inWaiting() > 0 and messageComplete == False:
@@ -39,13 +39,13 @@ def recvLikeArduino(serialPort):
         return "XXX"
 
 
-def waitForArduino(serialPort):
+def waitForArduino(serialPort: serial.Serial):
     msg = ""
     while msg.find("READY") == -1:
         msg = recvLikeArduino(serialPort)
 
 
-def sendToArduino(serialPort, stringToSend):
+def sendToArduino(serialPort: serial.Serial, stringToSend: str):
     global startMarker, endMarker
 
     stringWithMarkers = startMarker + stringToSend + endMarker
