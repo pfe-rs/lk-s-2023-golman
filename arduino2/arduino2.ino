@@ -8,7 +8,7 @@
 #define STEP 2
 #define EN 8
 #define servi 9
-#define DELAY 200  // in micros
+#define DELAY 100  // in micros
 Servo s;
 
 int desPos = 0, cpos = 0, delta = 0, endpos = 0;
