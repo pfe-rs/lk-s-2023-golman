@@ -7,7 +7,7 @@ from time import sleep, time
 from usb_serial import setupSerial, send_pos
 
 old_ball = None
-prevTime = time()
+prev_send = time()
 
 def getBallPosition(image: cv2.Mat):
     contours, _ = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -27,13 +27,13 @@ def binarization(image: cv2.Mat):
 
 
 if __name__ == "__main__":
-    serialPort = "COM3"
+    # serialPort = "COM3"
     # print(f"Connecting to arduino on port {serialPort}")
     # sp = setupSerial(115200, serialPortName=serialPort)
     # print("Connected to arduino!")
     # sleep(3)
     # print("Continuing")
-    setupSerial(115200, "COM3")
+    setupSerial(115200, "/dev/ttyACM0")
     
     print("Setting up video camera")
     vidcap = setupVidCap(2)
@@ -137,28 +137,40 @@ if __name__ == "__main__":
                 point_3 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
         
         blank = np.zeros((600, 800), dtype=np.uint8)
-        cv2.line(blank, (0, 200), (0, 400), (255,255,255), 3)
+        cv2.line(blank, (0, 200), (0, 410), (255,255,255), 3)
 
-        cv2.circle(blank, old_ball, 5, (255,255,255), 3)
+        # cv2.circle(blank, old_ball, 5, (255,255,255), 3)
         cv2.circle(blank, ballPos, 10, (255,255,255), 3)
-        cv2.line(blank, point_1, point_2, (255, 255, 0), 2)
+        # cv2.line(blank, point_1, point_2, (255, 255, 0), 2)
+        cv2.line(blank, (0, ballPos[1]), (800, ballPos[1]), (255, 255, 0), 2)
+        cv2.line(blank, (ballPos[0], 0), (ballPos[0], 600), (255, 255, 0), 2)
         
         if point_3[0] != -1 and point_3[1] != -1:
             cv2.line(blank, point_2, point_3, (255, 255, 0), 2)
 
-        if point_1[0] == 0 and point_1[1] > 200 and point_1[1] < 400:
+        # if point_1[0] == 0 and point_1[1] > 200 and point_1[1] < 400:
+        if ballPos[1] > 200 and ballPos[1] < 410:
             # os.system("play -nq -t alsa synth 0.3 sine 1000")
             # print("goal is likely!")
             # if time() - prevTime > 0.5:
             #     print(f"sent to arduino: {point_1[1]} 0")
             #     sendToArduino(serialPort=sp, stringToSend=f"{point_1[1]} 0")
             #     prevTime = time()
-            send_pos(point_1[1])
+            # send_pos(point_1[1])
+            delay = 0.05
+        # print(f"new position in {(delay - (time.time() - prev_send)) * 100}...")
+            if time() - prev_send > delay:
+                # p = point_1[1]
+                p = 600 - ballPos[1]
+                send_pos(p)
+                # print(f"{19*(p-200)/200}cm")
+                prev_send = time()
 
         # waitForArduino(serialPort=sp)
         # print("continuing")
 
-        showImage(blank, f"slika{br}.png")
+        showImage(blank, waitKeyTimeout=1)
+
         
         print(f"p1:{point_1}, p2:{point_2}, p3:{point_3}, ballpos: {ballPos}")
         old_ball = ballPos

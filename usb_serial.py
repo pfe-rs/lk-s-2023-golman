@@ -72,16 +72,16 @@ def waitForArduino():
 
 
 def send_pos(position):
-    global prev_send
-    if time.time() - prev_send > 0.25:
-        cmd_text = f"{position} 0"
-        sendToArduino(cmd_text)
-        print(f"sent {cmd_text} to arudino!")
-        prev_send = time.time()
+    # global prev_send
+    # if time.time() - prev_send > 0.25:
+    cmd_text = f"{position} 0"
+    sendToArduino(cmd_text)
+    print(f"sent {cmd_text} to arudino!")
+        # prev_send = time.time()
 
 
 if __name__ == "__main__":
-    setupSerial(115200, "COM4")
+    setupSerial(115200, "/dev/ttyACM0")
     # count = 0
     # prevTime = time.time()
     while True:
@@ -100,3 +100,4 @@ if __name__ == "__main__":
             p = randint(200,400)
             send_pos(p)
             print(f"{19*(p-200)/200}cm")
+            prev_send = time.time()

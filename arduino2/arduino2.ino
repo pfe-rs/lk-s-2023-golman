@@ -8,7 +8,7 @@
 #define STEP 2
 #define EN 8
 #define servi 9
-#define DELAY 200  // in micros
+#define DELAY 100  // in micros
 Servo s;
 
 int desPos = 0, cpos = 0, delta = 0, endpos = 0;
@@ -130,7 +130,7 @@ void loop() {
   for (int i = 0; i < countSize(receivedChars) - 2; i++)
     desPosStr += receivedChars[i];
 
-  desPos = map(desPosStr.toInt(), 200, 400, 0, endpos);
+  desPos = map(desPosStr.toInt(), 200, 410, 0, endpos);
 
   if (receivedChars[countSize(receivedChars) - 1] == '1') {
     moveBall = true;
