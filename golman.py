@@ -126,15 +126,15 @@ if __name__ == "__main__":
 
                 point_3 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
         
-        blank = np.zeros((600, 800), dtype=np.uint8)
-        cv2.line(blank, (0, 200), (0, 400), (255,255,255), 3)
+        # blank = np.zeros((600, 800), dtype=np.uint8)
+        cv2.line(img, (0, 200), (0, 400), (255,255,255), 3)
 
-        cv2.circle(blank, old_ball, 5, (255,255,255), 3)
-        cv2.circle(blank, ballPos, 10, (255,255,255), 3)
-        cv2.line(blank, point_1, point_2, (255, 255, 0), 2)
+        cv2.circle(img, old_ball, 5, (255,255,255), 3)
+        cv2.circle(img, ballPos, 10, (255,255,255), 3)
+        cv2.line(img, point_1, point_2, (255, 255, 0), 2)
         
         if point_3[0] != -1 and point_3[1] != -1:
-            cv2.line(blank, point_2, point_3, (255, 255, 0), 2)
+            cv2.line(img, point_2, point_3, (255, 255, 0), 2)
 
         if point_1[0] == 0 and point_1[1] > 200 and point_1[1] < 400:
             # os.system("play -nq -t alsa synth 0.3 sine 1000")
@@ -148,7 +148,7 @@ if __name__ == "__main__":
         # waitForArduino(serialPort=sp)
         # print("continuing")
 
-        showImage(blank, f"slika{br}.png")
+        showImage(img)
         
         print(f"p1:{point_1}, p2:{point_2}, p3:{point_3}, ballpos: {ballPos}")
         old_ball = ballPos
