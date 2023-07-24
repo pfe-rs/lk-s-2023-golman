@@ -12,7 +12,7 @@ def setupVidCap(vidCapId: int = 2):
 
 def loadImage(vidcap: cv2.VideoCapture):
     _, image = vidcap.read()
-    print('loaded')
+    # print('loaded')
     return image
 
 
@@ -119,7 +119,7 @@ def list_ports():
 if __name__ == "__main__":
     # ask the user to confirm the suggested perspective transform is done well
     # list_ports()
-    vidcap = setupVidCap(0)
+    vidcap = setupVidCap(2)
     edges_to_use = getFinalImage(vidcap=vidcap)
     
     while True:
