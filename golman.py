@@ -48,24 +48,14 @@ if __name__ == "__main__":
     
     old_ball = ballPos
     
-    br = 0
     while True:
-        # sleep(0.1)
-        
         raw_img = loadImage(vidcap=vidcap)
     
         img = doPerspectiveTransform(raw_img, edges)
         binarized = binarization(img)
         ballPos = getBallPosition(binarized)
         
-        # showImage(binarized)
-        
-        # print(old_ball, ballPos)
-        
-        # # print(f"ball number: {i}, old ball: {old_ball}, new ball: {ballPos}")
-
         # # check if the ball is moving to toward the goal
-        # print(old_ball[0] - ballPos[0])
         if old_ball[0] - ballPos[0] < 0:
             # print(old_ball, ballPos)
             # print("the ball is moving away from the goal!")
@@ -74,9 +64,9 @@ if __name__ == "__main__":
 
         point_1 = ()
         point_2 = ()
-        # # initial values set to easily determine whether the ball
-        # # bounced off a wall or not
-        # # TODO: handle multiple wall bounces / check behaviour when multiple bounces occur or are likely
+        # initial values set to easily determine whether the ball
+        # bounced off a wall or not
+        # TODO: handle multiple wall bounces / check behaviour when multiple bounces occur or are likely
         point_3 = (-1,-1)
 
         if old_ball[0] == ballPos[0]:
@@ -136,17 +126,16 @@ if __name__ == "__main__":
 
                 point_3 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
         
-        blank = np.zeros((600, 800), dtype=np.uint8)
-        cv2.line(blank, (0, 200), (0, 410), (255,255,255), 3)
 
-        # cv2.circle(blank, old_ball, 5, (255,255,255), 3)
-        cv2.circle(blank, ballPos, 10, (255,255,255), 3)
-        # cv2.line(blank, point_1, point_2, (255, 255, 0), 2)
-        cv2.line(blank, (0, ballPos[1]), (800, ballPos[1]), (255, 255, 0), 2)
-        cv2.line(blank, (ballPos[0], 0), (ballPos[0], 600), (255, 255, 0), 2)
+        # blank = np.zeros((600, 800), dtype=np.uint8)
+        cv2.line(img, (0, 200), (0, 400), (255,255,255), 3)
+
+        cv2.circle(img, old_ball, 5, (255,255,255), 3)
+        cv2.circle(img, ballPos, 10, (255,255,255), 3)
+        cv2.line(img, point_1, point_2, (255, 255, 0), 2)
         
         if point_3[0] != -1 and point_3[1] != -1:
-            cv2.line(blank, point_2, point_3, (255, 255, 0), 2)
+            cv2.line(img, point_2, point_3, (255, 255, 0), 2)
 
         # if point_1[0] == 0 and point_1[1] > 200 and point_1[1] < 400:
         if ballPos[1] > 200 and ballPos[1] < 410:
