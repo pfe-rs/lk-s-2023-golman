@@ -1,12 +1,13 @@
 import cv2
 import numpy as np
 from dip import getFinalImage, loadImage, setupVidCap, showImage, doPerspectiveTransform
-from arduino import setupSerial, sendToArduino, waitForArduino
-from time import sleep
-import os
+# from arduino import setupSerial, sendToArduino, waitForArduino
+from time import sleep, time
+# import os
+from usb_serial import setupSerial, send_pos
 
 old_ball = None
-i = 0
+prevTime = time()
 
 def getBallPosition(image: cv2.Mat):
     contours, _ = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -26,12 +27,13 @@ def binarization(image: cv2.Mat):
 
 
 if __name__ == "__main__":
-    serialPort = "/dev/ttyACM0"
-    print(f"Connecting to arduino on port {serialPort}")
-    sp = setupSerial(115200, serialPortName=serialPort)
-    print("Connected to arduino!")
-    sleep(3)
-    print("Continuing")
+    serialPort = "COM3"
+    # print(f"Connecting to arduino on port {serialPort}")
+    # sp = setupSerial(115200, serialPortName=serialPort)
+    # print("Connected to arduino!")
+    # sleep(3)
+    # print("Continuing")
+    setupSerial(115200, "COM3")
     
     print("Setting up video camera")
     vidcap = setupVidCap(2)
@@ -145,14 +147,14 @@ if __name__ == "__main__":
             cv2.line(blank, point_2, point_3, (255, 255, 0), 2)
 
         if point_1[0] == 0 and point_1[1] > 200 and point_1[1] < 400:
-            if i == 5:
             # os.system("play -nq -t alsa synth 0.3 sine 1000")
             # print("goal is likely!")
-                # sendToArduino(serialPort=sp, stringToSend=f"{point_1[1]} 0")
-                print(f"sent to arduino: {point_1[1]} 0")
-                i = 0
-            else:
-                i += 1
+            # if time() - prevTime > 0.5:
+            #     print(f"sent to arduino: {point_1[1]} 0")
+            #     sendToArduino(serialPort=sp, stringToSend=f"{point_1[1]} 0")
+            #     prevTime = time()
+            send_pos(point_1[1])
+
         # waitForArduino(serialPort=sp)
         # print("continuing")
 

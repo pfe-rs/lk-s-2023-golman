@@ -53,7 +53,7 @@ def sendToArduino(serialPort: serial.Serial, stringToSend: str):
 
 
 if __name__ == "__main__":
-    s = setupSerial(115200, "/dev/ttyACM0")
+    s = setupSerial(115200, "COM3")
     print("arduino ready")
     time.sleep(3)
     print("keyboard enabled")
