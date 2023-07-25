@@ -158,7 +158,7 @@ if __name__ == "__main__":
         # waitForArduino(serialPort=sp)
         # print("continuing")
 
-        showImage(blank, waitKeyTimeout=1)
+        showImage(img, waitKeyTimeout=1)
 
         
         print(f"p1:{point_1}, p2:{point_2}, p3:{point_3}, ballpos: {ballPos}")
