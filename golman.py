@@ -107,20 +107,6 @@ if __name__ == "__main__":
             x = 0
             y = old_ball[1] - k * old_ball[0]
 
-            # find y coordinate at x=799
-            x = 799
-            y = k * (799 - old_ball[0]) + old_ball[1]
-            
-            # handle out of bounds
-            if y < 0 or y > 600:
-                if y < 0:
-                    y = 0
-                elif y > 600:
-                    y = 600
-                x = old_ball[0] + (y - old_ball[1]) / k
-
-            point_1 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
-
             # handle out of bounds
             if y < 0 or y > 600:
                 if y < 0:
@@ -131,6 +117,20 @@ if __name__ == "__main__":
             
             point_2 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
 
+            # find y coordinate at x=799
+            x = 799
+            y = k * (799 - old_ball[0]) + old_ball[1]
+
+            # handle out of bounds
+            if y < 0 or y > 600:
+                if y < 0:
+                    y = 0
+                elif y > 600:
+                    y = 600
+                x = old_ball[0] + (y - old_ball[1]) / k
+
+            point_1 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
+
             # check for collision and calculate
             # ball direction after collision
             # TODO: get rid of magic numbers
@@ -140,7 +140,7 @@ if __name__ == "__main__":
                 if k < 0:
                     B = 0
                 
-                n = 2 * B - point_1[1] + k * point_1[0]
+                n = 2 * B - point_2[1] + k * point_2[0]
                 y = -k * x + n
 
                 # handle out of bounds
