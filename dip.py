@@ -1,7 +1,7 @@
 # import necessary libraries
 import cv2
 import numpy as np
-
+import operator
 
 def setupVidCap(vidCapId: int = 2):
     vidcap = cv2.VideoCapture(vidCapId)
@@ -51,7 +51,7 @@ def definitelyGetDialatedEdges(vidcap: cv2.VideoCapture, image: cv2.Mat, kernel_
 
 def findEdgePoints(contours: cv2.Mat):
     edgePoints = []
-    
+
     for contour in contours:
         x, y, w, h = cv2.boundingRect(contour)
 
@@ -63,8 +63,27 @@ def findEdgePoints(contours: cv2.Mat):
 
 
 def doPerspectiveTransform(image: cv2.Mat, edgePoints: tuple):
+    # bottom_right = None
+    # top_right = None
+    # bottom_left = None
+    # top_left = None
+
+    # for point in edgePoints:
+    #     if point[0] > 400 and point[1] > 400:
+    #         bottom_right = point
+    #     elif point[0] > 400 and point[1] < 400:
+    #         top_right = point
+    #     elif point[0] < 400 and point[1] > 400:
+    #         bottom_left = point
+    #     elif point[0] < 400 and point[1] < 400:
+    #         top_left = point
+
+    # edgePoints = sorted(edgePoints, key=operator.itemgetter(0,1))
     coords = np.float32(edgePoints)
+    
+    # print(coords)
     # print(edgePoints)
+    # print(coords)
     output = np.float32([[800,600],[800,0],[0,600],[0,0]])
     perspective_transform = cv2.getPerspectiveTransform(coords, output)
     
@@ -83,43 +102,14 @@ def getFinalImage(vidcap: cv2.VideoCapture):
         
         shifted = doPerspectiveTransform(img, edgePoints=edges)
         
-        if(showImage(shifted) == ord('y')):
+        if showImage(shifted) == ord('y'):
             cv2.destroyAllWindows()
             return edges
 
 
-def list_ports():
-    """
-    Test the ports and returns a tuple with the available ports 
-    and the ones that are working.
-    """
-    is_working = True
-    dev_port = 0
-    working_ports = []
-    available_ports = []
-    while is_working:
-        camera = cv2.VideoCapture(dev_port)
-        if not camera.isOpened():
-            is_working = False
-            print("Port %s is not working." %dev_port)
-        else:
-            is_reading, img = camera.read()
-            w = camera.get(3)
-            h = camera.get(4)
-            if is_reading:
-                print("Port %s is working and reads images (%s x %s)" %(dev_port,h,w))
-                working_ports.append(dev_port)
-            else:
-                print("Port %s for camera ( %s x %s) is present but does not reads." %(dev_port,h,w))
-                available_ports.append(dev_port)
-        dev_port +=1
-    return available_ports,working_ports
-
-
 if __name__ == "__main__":
     # ask the user to confirm the suggested perspective transform is done well
-    # list_ports()
-    vidcap = setupVidCap(2)
+    vidcap = setupVidCap(0)
     edges_to_use = getFinalImage(vidcap=vidcap)
     
     while True:

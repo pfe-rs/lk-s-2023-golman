@@ -8,6 +8,7 @@ from usb_serial import setupSerial, send_pos
 
 old_ball = None
 prev_send = time()
+offset = 0
 
 def getBallPosition(image: cv2.Mat):
     contours, _ = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -36,7 +37,7 @@ if __name__ == "__main__":
     setupSerial(115200, "/dev/ttyACM0")
     
     print("Setting up video camera")
-    vidcap = setupVidCap(2)
+    vidcap = setupVidCap(0)
     print("Camera successfully set up")
     edges = getFinalImage(vidcap=vidcap)
     
@@ -137,23 +138,20 @@ if __name__ == "__main__":
         if point_3[0] != -1 and point_3[1] != -1:
             cv2.line(img, point_2, point_3, (255, 255, 0), 2)
 
-        # if point_1[0] == 0 and point_1[1] > 200 and point_1[1] < 400:
-        if ballPos[1] > 200 and ballPos[1] < 410:
-            # os.system("play -nq -t alsa synth 0.3 sine 1000")
-            # print("goal is likely!")
-            # if time() - prevTime > 0.5:
-            #     print(f"sent to arduino: {point_1[1]} 0")
-            #     sendToArduino(serialPort=sp, stringToSend=f"{point_1[1]} 0")
-            #     prevTime = time()
-            # send_pos(point_1[1])
-            delay = 0.05
-        # print(f"new position in {(delay - (time.time() - prev_send)) * 100}...")
+        delay = 0.05
+        
+        if point_1[0] == 0 and point_1[1] > 180 and point_1[1] < 420:
             if time() - prev_send > delay:
-                # p = point_1[1]
-                p = 600 - ballPos[1]
-                send_pos(p)
-                # print(f"{19*(p-200)/200}cm")
+                p = f"{abs(600 - point_1[1])}"
+                throw = 0
+                if ballPos[0] < 50:
+                    throw = 1
+                send_pos(p, throw)
                 prev_send = time()
+        else:
+            p = 300
+            send_pos(p)
+            prev_send = time()
 
         # waitForArduino(serialPort=sp)
         # print("continuing")
