@@ -12,10 +12,13 @@ offset = 0
 
 def getBallPosition(image: cv2.Mat):
     contours, _ = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    c = max(contours, key=cv2.contourArea)    
-    x, y, w, h = cv2.boundingRect(c)
-    
-    return ((x+x+w)//2,(y+y+h)//2)
+    try:
+        c = max(contours, key=cv2.contourArea)
+        x, y, w, h = cv2.boundingRect(c)
+        
+        return ((x+x+w)//2,(y+y+h)//2)
+    except ValueError:
+        return None
 
 
 def binarization(image: cv2.Mat):
@@ -40,13 +43,16 @@ if __name__ == "__main__":
     vidcap = setupVidCap(0)
     print("Camera successfully set up")
     edges = getFinalImage(vidcap=vidcap)
-    
+    # if f is not None:
+    #     print("flip")
     raw_img = loadImage(vidcap=vidcap)
     
     img = doPerspectiveTransform(raw_img, edges)
     binarized = binarization(img)
     ballPos = getBallPosition(binarized)
     
+    # TODO: check ball orientation
+
     old_ball = ballPos
     
     while True:
@@ -56,10 +62,11 @@ if __name__ == "__main__":
         binarized = binarization(img)
         ballPos = getBallPosition(binarized)
         
+        if ballPos == None:
+            continue
+
         # # check if the ball is moving to toward the goal
         if old_ball[0] - ballPos[0] < 0:
-            # print(old_ball, ballPos)
-            # print("the ball is moving away from the goal!")
             old_ball = ballPos
             continue
 
@@ -159,5 +166,5 @@ if __name__ == "__main__":
         showImage(img, waitKeyTimeout=1)
 
         
-        print(f"p1:{point_1}, p2:{point_2}, p3:{point_3}, ballpos: {ballPos}")
+        # print(f"p1:{point_1}, p2:{point_2}, p3:{point_3}, ballpos: {ballPos}")
         old_ball = ballPos

@@ -31,19 +31,20 @@ def getDialatedEdges(image: cv2.Mat, kernel_size: tuple, anchor_size: tuple, low
     element = cv2.getStructuringElement(cv2.MORPH_RECT, ksize=kernel_size, anchor=anchor_size)
     
     dilatation_dst = cv2.dilate(mask, element)
+    # showImage(dilatation_dst)
     contours, _ = cv2.findContours(dilatation_dst, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     
     # showImage(dilatation_dst)
     return contours
 
 
-def definitelyGetDialatedEdges(vidcap: cv2.VideoCapture, image: cv2.Mat, kernel_size: tuple = (21,21), anchor_size: tuple = (10,10), lower_bound: tuple = (58, 100, 75), upper_bound: tuple = (67, 115, 179)):
+def definitelyGetDialatedEdges(vidcap: cv2.VideoCapture, image: cv2.Mat, kernel_size: tuple = (21,21), anchor_size: tuple = (10,10), lower_bound: tuple = (58, 100, 75), upper_bound: tuple = (67, 115, 179), corners = 4):
     while True:
         contours = getDialatedEdges(image, kernel_size, anchor_size, lower_bound, upper_bound)
         
         # print(f"treuntno: {len(contours)}")
         
-        if len(contours) == 4:
+        if len(contours) == corners:
             return contours
 
         image = loadImage(vidcap=vidcap)
@@ -63,27 +64,8 @@ def findEdgePoints(contours: cv2.Mat):
 
 
 def doPerspectiveTransform(image: cv2.Mat, edgePoints: tuple):
-    # bottom_right = None
-    # top_right = None
-    # bottom_left = None
-    # top_left = None
-
-    # for point in edgePoints:
-    #     if point[0] > 400 and point[1] > 400:
-    #         bottom_right = point
-    #     elif point[0] > 400 and point[1] < 400:
-    #         top_right = point
-    #     elif point[0] < 400 and point[1] > 400:
-    #         bottom_left = point
-    #     elif point[0] < 400 and point[1] < 400:
-    #         top_left = point
-
-    # edgePoints = sorted(edgePoints, key=operator.itemgetter(0,1))
     coords = np.float32(edgePoints)
-    
-    # print(coords)
-    # print(edgePoints)
-    # print(coords)
+
     output = np.float32([[800,600],[800,0],[0,600],[0,0]])
     perspective_transform = cv2.getPerspectiveTransform(coords, output)
     
@@ -105,11 +87,32 @@ def getFinalImage(vidcap: cv2.VideoCapture):
         if showImage(shifted) == ord('y'):
             cv2.destroyAllWindows()
             return edges
+        # elif showImage(shifted) == ord('f'):
+        #     cv2.destroyAllWindows()
+        #     return (edges, 'f')
 
 
 if __name__ == "__main__":
     # ask the user to confirm the suggested perspective transform is done well
     vidcap = setupVidCap(0)
+
+    # while True:
+    #     img = loadImage(vidcap)
+                    
+    #     contours = definitelyGetDialatedEdges(vidcap=vidcap, image=img, kernel_size=(31,31), anchor_size=(15,15), lower_bound=(52, 108, 75), upper_bound=(67, 130, 179))
+        
+    #     edges = findEdgePoints(contours=contours)
+        
+    #     shifted = doPerspectiveTransform(img, edgePoints=edges)
+    #     # img = loadImage(vidcap=vidcap)
+    #     showImage(img)
+    #     getDialatedEdges(img, (8,8), (2, 2), (0, 100, 200), (11, 160, 250))
+    #     # cont = definitelyGetDialatedEdges(vidcap, img, (8, 8), (2, 2), (0, 100, 200), (11, 115, 250), corners=-1)
+    #     # edges = findEdgePoints(cont)
+    #     # print(edges)
+    # # print()
+    # pass
+
     edges_to_use = getFinalImage(vidcap=vidcap)
     
     while True:

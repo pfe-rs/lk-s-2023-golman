@@ -1,21 +1,26 @@
 #include <digitalWriteFast.h>
+#include <SoftwareSerial.h>
 #include <Servo.h>
 
-#define LOW_SWITCH 4
+#define SEND_POS_PIN 2
+#define LOW_SWITCH 12
 #define HIGH_SWITCH 3
 #define SPR 800
 #define DIR 5
-#define STEP 2
+#define STEP 6
 #define EN 8
 #define servi 9
 #define DELAY 100  // in micros
+#define CALIB_DELAY 500
 Servo s;
+SoftwareSerial ss(11,10);
 
 int desPos = 0, cpos = 0, delta = 0, endpos = 0;
 bool moveBall = false;
 bool newData = false;
 const byte numChars = 64;
 char receivedChars[numChars];
+unsigned long totalSteps = 0;
 
 int countSize(char chars[]) {
   int i = 0;
@@ -24,35 +29,36 @@ int countSize(char chars[]) {
   return i;
 }
 
+void make_step(unsigned int delay = DELAY) {
+  digitalWriteFast(STEP, HIGH);
+  delayMicroseconds(delay);
+  digitalWriteFast(STEP, LOW);
+  delayMicroseconds(delay);
+  totalSteps++;
+}
+
 int calibrate() {
   // move to the left
   digitalWrite(DIR, LOW);
   while (!digitalRead(LOW_SWITCH)) {
     // Serial.println("loop");
-    digitalWriteFast(STEP, HIGH);
-    delayMicroseconds(DELAY);
-    digitalWriteFast(STEP, LOW);
-    delayMicroseconds(DELAY);
+    make_step(CALIB_DELAY);
   }
   // move to the right
   int i;
   digitalWrite(DIR, HIGH);
   while (!digitalRead(HIGH_SWITCH)) {
-    digitalWriteFast(STEP, HIGH);
-    delayMicroseconds(DELAY);
-    digitalWriteFast(STEP, LOW);
-    delayMicroseconds(DELAY);
+    make_step(CALIB_DELAY);
     i++;
   }
+  // Serial.println("A");
   // move to the left again
   digitalWrite(DIR, LOW);
   while (!digitalRead(LOW_SWITCH)) {
     // Serial.println("loop");
-    digitalWriteFast(STEP, HIGH);
-    delayMicroseconds(DELAY);
-    digitalWriteFast(STEP, LOW);
-    delayMicroseconds(DELAY);
+    make_step(CALIB_DELAY);
   }
+  // Serial.println("B");
   cpos = 0;
   return i - 200;
 }
@@ -88,23 +94,29 @@ void recvWithStartEndMarkers() {
   }
 }
 
-void replyToPython() {
-  Serial.print("<ball is now at");
-  Serial.print(cpos);
-  Serial.print(">");
+void send_data() {
+  ss.println(totalSteps);
 }
 
 void setup() {
   // put your setup code here, to run once:
+  Serial.begin(115200);
+  ss.begin(115200);
+
   pinMode(STEP, OUTPUT);
   pinMode(DIR, OUTPUT);
+  pinMode(LOW_SWITCH, INPUT_PULLUP);
+  pinMode(HIGH_SWITCH, INPUT_PULLUP);
+  pinMode(SEND_POS_PIN, INPUT_PULLUP);
+
+  attachInterrupt(digitalPinToInterrupt(SEND_POS_PIN), send_data, FALLING);
 
   s.attach(9);
   s.write(50);
 
   endpos = calibrate();
+  totalSteps = 0;
 
-  Serial.begin(115200);
   Serial.println("<READY>");
 }
 
@@ -150,10 +162,7 @@ void loop() {
   if (delta != 0) {
     digitalWriteFast(DIR, delta > 0);
 
-    digitalWriteFast(STEP, HIGH);
-    delayMicroseconds(DELAY);
-    digitalWriteFast(STEP, LOW);
-    delayMicroseconds(DELAY);
+    make_step();
 
     if (delta > 0) {
       cpos++;
