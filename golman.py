@@ -45,23 +45,42 @@ if __name__ == "__main__":
     edges = getFinalImage(vidcap=vidcap)
     # if f is not None:
     #     print("flip")
+    print("START")
+    start_time = time()
+    print(f"{time()} begin image read")
     raw_img = loadImage(vidcap=vidcap)
-    
+    print(f"{time()} end image read and begin perspective transform")
     img = doPerspectiveTransform(raw_img, edges)
+    print(f"{time()} end perspective transform and begin binarization")
     binarized = binarization(img)
+    print(f"{time()} end binarization and begin get ball position")
     ballPos = getBallPosition(binarized)
-    
+    print(f"{time()} end getting ball position")
+    print(f"END. TOTAL TIME: {time() - start_time}")
     # TODO: check ball orientation
 
     old_ball = ballPos
     
     while True:
-        raw_img = loadImage(vidcap=vidcap)
+        # raw_img = loadImage(vidcap=vidcap)
     
-        img = doPerspectiveTransform(raw_img, edges)
-        binarized = binarization(img)
-        ballPos = getBallPosition(binarized)
+        # img = doPerspectiveTransform(raw_img, edges)
+        # binarized = binarization(img)
+        # ballPos = getBallPosition(binarized)
         
+        print("START")
+        start_time = time()
+        print(f"{time()} begin image read")
+        raw_img = loadImage(vidcap=vidcap)
+        print(f"{time()} end image read and begin perspective transform")
+        img = doPerspectiveTransform(raw_img, edges)
+        print(f"{time()} end perspective transform and begin binarization")
+        binarized = binarization(img)
+        print(f"{time()} end binarization and begin get ball position")
+        ballPos = getBallPosition(binarized)
+        print(f"{time()} end getting ball position")
+        print(f"END. TOTAL TIME: {time() - start_time}")
+
         if ballPos == None:
             continue
 
@@ -88,6 +107,20 @@ if __name__ == "__main__":
             x = 0
             y = old_ball[1] - k * old_ball[0]
 
+            # find y coordinate at x=799
+            x = 799
+            y = k * (799 - old_ball[0]) + old_ball[1]
+            
+            # handle out of bounds
+            if y < 0 or y > 600:
+                if y < 0:
+                    y = 0
+                elif y > 600:
+                    y = 600
+                x = old_ball[0] + (y - old_ball[1]) / k
+
+            point_1 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
+
             # handle out of bounds
             if y < 0 or y > 600:
                 if y < 0:
@@ -96,20 +129,6 @@ if __name__ == "__main__":
                     y = 600
                 x = old_ball[0] + (y - old_ball[1]) / k
             
-            point_1 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
-
-            # find y coordinate at x=799
-            x = 799
-            y = k * (799 - old_ball[0]) + old_ball[1]
-
-            # handle out of bounds
-            if y < 0 or y > 600:
-                if y < 0:
-                    y = 0
-                elif y > 600:
-                    y = 600
-                x = old_ball[0] + (y - old_ball[1]) / k
-
             point_2 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
 
             # check for collision and calculate
@@ -121,7 +140,7 @@ if __name__ == "__main__":
                 if k < 0:
                     B = 0
                 
-                n = 2 * B - point_2[1] + k * point_2[0]
+                n = 2 * B - point_1[1] + k * point_1[0]
                 y = -k * x + n
 
                 # handle out of bounds
@@ -149,7 +168,8 @@ if __name__ == "__main__":
         
         if point_1[0] == 0 and point_1[1] > 180 and point_1[1] < 420:
             if time() - prev_send > delay:
-                p = f"{abs(600 - point_1[1])}"
+                p = f"{600 - point_1[1]}"
+                # print(p)
                 throw = 0
                 if ballPos[0] < 50:
                     throw = 1

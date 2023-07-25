@@ -5,8 +5,10 @@ import operator
 
 def setupVidCap(vidCapId: int = 2):
     vidcap = cv2.VideoCapture(vidCapId)
-    vidcap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280.0)
-    vidcap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720.0)
+    # vidcap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280.0)
+    # vidcap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720.0)
+    vidcap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    vidcap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     return vidcap
 
 
