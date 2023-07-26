@@ -95,7 +95,8 @@ if __name__ == "__main__":
         # bounced off a wall or not
         # TODO: handle multiple wall bounces / check behaviour when multiple bounces occur or are likely
         point_3 = (-1,-1)
-
+        g=-1
+        h=-1
         if old_ball[0] == ballPos[0]:
             # k is infinite
             point_1 = (old_ball[0], 0)
@@ -103,55 +104,35 @@ if __name__ == "__main__":
         else:
             k = ((ballPos[1] - old_ball[1]))/((ballPos[0] - old_ball[0]))
 
-            # find y coordinate at x=0
+            x=799
+            y = k * (799 - old_ball[0]) + old_ball[1]
+            if y < 0 or y > 600:
+                if y < 0:
+                    y = 0
+                elif y > 600:
+                    y = 600
+                x = old_ball[0] + (y - old_ball[1]) / k            
+            point_1 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
+
             x = 0
             y = old_ball[1] - k * old_ball[0]
 
-            # handle out of bounds
+            if (y>600):
+                point_3 = (np.round(0).astype(np.uint16),np.round(1200-y).astype(np.uint16))
+    
+            if (y<0):
+                point_3 = (np.round(0).astype(np.uint16),np.round(-y).astype(np.uint16))
+
+            
             if y < 0 or y > 600:
                 if y < 0:
                     y = 0
                 elif y > 600:
                     y = 600
                 x = old_ball[0] + (y - old_ball[1]) / k
-            
+
             point_2 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
 
-            # find y coordinate at x=799
-            x = 799
-            y = k * (799 - old_ball[0]) + old_ball[1]
-
-            # handle out of bounds
-            if y < 0 or y > 600:
-                if y < 0:
-                    y = 0
-                elif y > 600:
-                    y = 600
-                x = old_ball[0] + (y - old_ball[1]) / k
-
-            point_1 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
-
-            # check for collision and calculate
-            # ball direction after collision
-            # TODO: get rid of magic numbers
-            if point_2[0] < 799:
-                x = 799
-                B = 600
-                if k < 0:
-                    B = 0
-                
-                n = 2 * B - point_2[1] + k * point_2[0]
-                y = -k * x + n
-
-                # handle out of bounds
-                if y < 0 or y > 600:
-                    if y < 0:
-                        y = 0
-                    elif y > 600:
-                        y = 600
-                    x = (n - y) / k
-
-                point_3 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
         
 
         # blank = np.zeros((600, 800), dtype=np.uint8)
@@ -159,16 +140,20 @@ if __name__ == "__main__":
 
         cv2.circle(img, old_ball, 5, (255,255,255), 3)
         cv2.circle(img, ballPos, 10, (255,255,255), 3)
-        cv2.line(img, point_1, point_2, (255, 255, 0), 2)
         
         if point_3[0] != -1 and point_3[1] != -1:
             cv2.line(img, point_2, point_3, (255, 255, 0), 2)
+            cv2.line(img, point_1, point_2, (255, 255, 0), 2)
+        else:
+            cv2.line(img, point_1, point_2, (255, 255, 0), 2)
+
+
 
         delay = 0.05
         
-        if point_1[0] == 0 and point_1[1] > 180 and point_1[1] < 420:
+        if point_2[0] == 0 and point_2[1] > 180 and point_2[1] < 420:
             if time() - prev_send > delay:
-                p = f"{600 - point_1[1]}"
+                p = f"{600 - point_2[1]}"
                 # print(p)
                 throw = 0
                 if ballPos[0] < 50:

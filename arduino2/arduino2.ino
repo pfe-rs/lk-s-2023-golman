@@ -142,7 +142,7 @@ void loop() {
   for (int i = 0; i < countSize(receivedChars) - 2; i++)
     desPosStr += receivedChars[i];
 
-  desPos = map(desPosStr.toInt(), 113, 486, 0, endpos);
+  desPos = map(desPosStr.toInt(), 130, 440, 0, endpos);
 
   if (receivedChars[countSize(receivedChars) - 1] == '1') {
     moveBall = true;
