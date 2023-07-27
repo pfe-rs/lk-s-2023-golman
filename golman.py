@@ -8,6 +8,8 @@ from mnk import mnk
 old_ball = None
 prev_send = time()
 prediction = (-1,-1)
+ballInGoal = False
+score = 0
 
 if __name__ == "__main__":
     setupSerial(115200, "/dev/ttyACM0")
@@ -25,7 +27,6 @@ if __name__ == "__main__":
     
     x = []
     y = []
-
     while True:
         raw_img = loadImage(vidcap=vidcap)
         img = doPerspectiveTransform(raw_img, edges)
@@ -38,7 +39,9 @@ if __name__ == "__main__":
                 continue
             
             if old_ball[0] < 200 and old_ball[1] > 180 and old_ball[1] < 420:
-                #print("GOAL!")
+                if not ballInGoal:
+                    print("GOAL!")
+                    
                 x.clear()
                 y.clear()
             continue
@@ -71,14 +74,23 @@ if __name__ == "__main__":
         if (len(x)) > 5:
             x.pop(0)
             y.pop(0)
+        n, k = mnk(x, y)
 
         if (len(x) < 2):
             continue
 
-        n, k = mnk(x, y)
         
+        print(f"start {n} {k}")
         delay = 0.5
+        if n < 0 or n > 600:
+            # detected bounce
+            if n < 0:
+                n = -n
+            if n > 600:
+                n = 1200 - n
+
         if n > 180 and n < 420:
+            # n = round(n)
             #print("goal likely")
             if time() - prev_send > delay:
                 p = f"{600 - round(n)}"
@@ -91,7 +103,9 @@ if __name__ == "__main__":
                 prev_send = time()
                 # print(f"{time()} sent coordinate")
         else:
-            print("miss")
+            p = 300
+            send_pos(p)
+            prev_send = time()
 
         old_ball = ballPos
         
