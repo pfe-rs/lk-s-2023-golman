@@ -3,7 +3,7 @@
 #include <Servo.h>
 
 #define SEND_POS_PIN 2
-#define LOW_SWITCH 12
+#define LOW_SWITCH 4
 #define HIGH_SWITCH 3
 #define SPR 800
 #define DIR 5
@@ -11,7 +11,7 @@
 #define EN 8
 #define servi 9
 #define DELAY 100  // in micros
-#define CALIB_DELAY 500
+#define CALIB_DELAY 300
 Servo s;
 SoftwareSerial ss(11,10);
 
