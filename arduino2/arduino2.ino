@@ -58,6 +58,7 @@ int calibrate() {
     // Serial.println("loop");
     make_step(CALIB_DELAY);
   }
+
   // Serial.println("B");
   cpos = 0;
   return i - 200;
@@ -142,7 +143,7 @@ void loop() {
   for (int i = 0; i < countSize(receivedChars) - 2; i++)
     desPosStr += receivedChars[i];
 
-  desPos = map(desPosStr.toInt(), 130, 440, 0, endpos);
+  desPos = map(desPosStr.toInt(), 170, 420, 0, endpos);
 
   if (receivedChars[countSize(receivedChars) - 1] == '1') {
     moveBall = true;

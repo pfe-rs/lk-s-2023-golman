@@ -26,12 +26,21 @@ if __name__ == "__main__":
         raw_img = loadImage(vidcap=vidcap)
         img = doPerspectiveTransform(raw_img, edges)
         ballPos = findBall(img)
+        
+        cv2.line(img, (0, 200), (0, 400), (255,255,255), 3)
 
         if ballPos == None:
             continue
+        
+        if np.sqrt(np.power(ballPos[0] - old_ball[0], 2) + np.power(ballPos[1] - old_ball[1], 2)) < 3:
+            showImage(img, waitKeyTimeout=1)
+            old_ball = ballPos
+            continue
+        # print(np.sqrt(np.power(ballPos[0] - old_ball[0], 2) + np.power(ballPos[1] - old_ball[1], 2)))
 
-        # # check if the ball is moving to toward the goal
+        # check if the ball is moving to toward the goal
         if old_ball[0] - ballPos[0] < 0:
+            showImage(img, waitKeyTimeout=1)
             old_ball = ballPos
             continue
 
@@ -79,10 +88,8 @@ if __name__ == "__main__":
 
             point_2 = (np.round(x).astype(np.uint16),np.round(y).astype(np.uint16))
 
-        
-
         # blank = np.zeros((600, 800), dtype=np.uint8)
-        cv2.line(img, (0, 200), (0, 400), (255,255,255), 3)
+        # cv2.line(img, (0, 200), (0, 400), (255,255,255), 3)
 
         # cv2.circle(img, old_ball, 5, (255,255,255), 3)
         # cv2.circle(img, ballPos, 10, (255,255,255), 3)
@@ -103,8 +110,12 @@ if __name__ == "__main__":
         delay = 0.05
         
         if point_2[0] == 0 and point_2[1] > 180 and point_2[1] < 420:
-            print(int(prediction[1]) - int(point_2[1]))
+            # print(int(prediction[1]) - int(point_2[1]))
             if abs(int(prediction[1]) - int(point_2[1])) < 10:
+                throw = 0
+                if ballPos[0] < 50:
+                    throw = 1
+                send_pos(p, throw)
                 old_ball = ballPos
                 continue
             # print(prediction[1], point_2[1], int(prediction[1]) - int(point_2[1]))
