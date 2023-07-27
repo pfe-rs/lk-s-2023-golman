@@ -75,8 +75,6 @@ def findMarkers(image: cv2.Mat):
     c = []
 
     while len(c) < 4:
-        kernel_size = (21,21)
-        anchor_size = (8,8)
         # lower_bound = (100, 100, 100)
         # upper_bound = (120, 150, 255)
         lower_bound = (112,103,68)
@@ -86,6 +84,8 @@ def findMarkers(image: cv2.Mat):
 
         hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv_image, lowerb=lower_bound, upperb=upper_bound)
+
+        # showImage(mask)
         # showImage(mask, waitKeyTimeout=1)
         
         # opening = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel_size)

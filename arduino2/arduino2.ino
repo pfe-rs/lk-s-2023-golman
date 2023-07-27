@@ -10,7 +10,7 @@
 #define STEP 6
 #define EN 8
 #define servi 9
-#define DELAY 100  // in micros
+#define DELAY 50  // in micros
 #define CALIB_DELAY 300
 Servo s;
 SoftwareSerial ss(11,10);
