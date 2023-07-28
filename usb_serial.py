@@ -71,17 +71,17 @@ def waitForArduino():
             print(msg)
 
 
-def send_pos(position, send_pos = 0):
+def send_pos(position, score = 0, send_pos = 0):
     # global prev_send
     # if time.time() - prev_send > 0.25:
-    cmd_text = f"{position} {send_pos}"
+    cmd_text = f"{position} {score} {send_pos}"
     sendToArduino(cmd_text)
     # print(f"sent {cmd_text} to arudino!")
         # prev_send = time.time()
 
 
 if __name__ == "__main__":
-    setupSerial(115200, "/dev/ttyACM0")
+    setupSerial(115200, "/dev/ttyACM2")
     # count = 0
     # prevTime = time.time()
     while True:

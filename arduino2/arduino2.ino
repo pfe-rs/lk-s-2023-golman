@@ -1,8 +1,9 @@
 #include <digitalWriteFast.h>
 #include <SoftwareSerial.h>
+#include <ShiftRegister74HC595.h>
 #include <Servo.h>
 
-#define SEND_POS_PIN 2
+// #define SEND_POS_PIN 2
 #define LOW_SWITCH 4
 #define HIGH_SWITCH 3
 #define SPR 800
@@ -10,10 +11,10 @@
 #define STEP 6
 #define EN 8
 #define servi 9
-#define DELAY 50  // in micros
+#define DELAY 80  // in micros
 #define CALIB_DELAY 300
 Servo s;
-SoftwareSerial ss(11,10);
+ShiftRegister74HC595<1> sr(12, 10, 11);
 
 int desPos = 0, cpos = 0, delta = 0, endpos = 0;
 bool moveBall = false;
@@ -21,6 +22,48 @@ bool newData = false;
 const byte numChars = 64;
 char receivedChars[numChars];
 unsigned long totalSteps = 0;
+
+void setDisplay(int numberToSet) {
+  uint8_t broj;
+  switch (numberToSet) {
+    case 10:
+      broj = 0b11111111;
+      break;
+    case 0:
+      broj = 0b11000000;
+      break;
+    case 1:
+      broj = 0b11111001;
+      break;
+    case 2:
+      broj = 0b10100100;
+      break;
+    case 3:
+      broj = 0b10110000;
+      break;
+    case 4:
+      broj = 0b10011001;
+      break;
+    case 5:
+      broj = 0b10010010;
+      break;
+    case 6:
+      broj = 0b10000010;
+      break;
+    case 7:
+      broj = 0b11111000;
+      break;
+    case 8:
+      broj = 0b10000000;
+      break;
+    case 9:
+      broj = 0b10010000;
+      break;
+    default:
+      broj = 0b0000000;
+  }
+  sr.setAll(&broj);
+}
 
 int countSize(char chars[]) {
   int i = 0;
@@ -30,11 +73,15 @@ int countSize(char chars[]) {
 }
 
 void make_step(unsigned int delay = DELAY) {
+  // digitalWriteFast(EN, LOW);
+
   digitalWriteFast(STEP, HIGH);
   delayMicroseconds(delay);
   digitalWriteFast(STEP, LOW);
   delayMicroseconds(delay);
   totalSteps++;
+
+  // digitalWriteFast(EN, HIGH);
 }
 
 int calibrate() {
@@ -95,25 +142,22 @@ void recvWithStartEndMarkers() {
   }
 }
 
-void send_data() {
-  ss.println(totalSteps);
-}
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  ss.begin(115200);
 
   pinMode(STEP, OUTPUT);
   pinMode(DIR, OUTPUT);
+  pinMode(EN, OUTPUT);
   pinMode(LOW_SWITCH, INPUT_PULLUP);
   pinMode(HIGH_SWITCH, INPUT_PULLUP);
-  pinMode(SEND_POS_PIN, INPUT_PULLUP);
 
-  attachInterrupt(digitalPinToInterrupt(SEND_POS_PIN), send_data, FALLING);
+  digitalWriteFast(EN, LOW);
 
   s.attach(9);
   s.write(50);
+
+  setDisplay(10);
 
   endpos = calibrate();
   totalSteps = 0;
@@ -140,14 +184,18 @@ void loop() {
   // Serial.println("");
 
   String desPosStr = "";
-  for (int i = 0; i < countSize(receivedChars) - 2; i++)
+  for (int i = 0; i < countSize(receivedChars) - 4; i++)
     desPosStr += receivedChars[i];
 
-  desPos = map(desPosStr.toInt(), 170, 420, 0, endpos);
+  desPos = map(desPosStr.toInt(), 127, 463, 0, endpos);
 
   if (receivedChars[countSize(receivedChars) - 1] == '1') {
     moveBall = true;
   }
+
+  // String hack = "";
+  // hack += receivedChars[countSize(receivedChars) - 3];
+  // setDisplay(hack.toInt());
   // }
 
   if (desPos < 0)

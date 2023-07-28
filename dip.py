@@ -77,8 +77,8 @@ def findMarkers(image: cv2.Mat):
     while len(c) < 4:
         # lower_bound = (100, 100, 100)
         # upper_bound = (120, 150, 255)
-        lower_bound = (108,82,73)
-        upper_bound = (137,193,179)
+        lower_bound = (108,120,109)
+        upper_bound = (129,178,255)
         # upper_bound = (240, 255, 63) # hsv(240, 100%, 25%)
         # lower_bound = (210, 255, 127) # hsv(210, 100%, 50%)
 

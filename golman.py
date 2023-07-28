@@ -12,7 +12,7 @@ ballInGoal = False
 score = 0
 
 if __name__ == "__main__":
-    setupSerial(115200, "/dev/ttyACM0")
+    setupSerial(115200, "/dev/ttyACM2")
     
     print("Setting up video camera")
     vidcap = setupVidCap(0)
@@ -71,16 +71,18 @@ if __name__ == "__main__":
         x.append(ballPos[0])
         y.append(ballPos[1])
 
-        if (len(x)) > 5:
-            x.pop(0)
-            y.pop(0)
-        n, k = mnk(x, y)
-
         if (len(x) < 2):
             continue
 
+        if (len(x)) > 3:
+            x.pop(0)
+            y.pop(0)
         
-        print(f"start {n} {k}")
+        n, k = mnk(x, y)
+
+
+        
+        # print(f"start {n} {k}")
         delay = 0.5
         if n < 0 or n > 600:
             # detected bounce
@@ -106,6 +108,15 @@ if __name__ == "__main__":
             p = 300
             send_pos(p)
             prev_send = time()
+
+        point = (round(-n/k), 0)
+
+        if (point[0] < 0):
+            point = (0, round(n))
+
+        print(point)
+
+        # cv2.line(img, point, ballPos, (255, 128, 0), 3)
 
         old_ball = ballPos
         
